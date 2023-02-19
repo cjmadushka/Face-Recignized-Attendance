@@ -3,6 +3,7 @@ import cv2
 import os
 import glob
 import numpy as np
+import json
 
 class Recognizer:
     def __init__(self):
@@ -10,8 +11,12 @@ class Recognizer:
         self.known_face_names = []
 
         self.frame_resizing = 0.25
-
-    def load_encoding_images(self, images_path):
+    def load_encoding_images(self):
+        self.known_face_encodings=np.genfromtxt('face_code.csv',delimiter=',')
+        namefile=open('face_name.txt','r')
+        self.known_face_names=namefile.read().splitlines()
+        print("Data Loaded Successfully")
+    def save_encoding_images(self, images_path):
         """
         Load encoding images from path
         :param images_path:
@@ -31,12 +36,17 @@ class Recognizer:
             (filename, ext) = os.path.splitext(basename)
 
             print('Loading :- ' ,filename)
-            img_encoding = face_recognition.face_encodings(rgb_img)[0]
-
-
+            img_encoding = face_recognition.face_encodings(rgb_img,num_jitters=100,model='large')[0]
             self.known_face_encodings.append(img_encoding)
             self.known_face_names.append(filename)
-        print("Encoding images loaded")
+        print(type(self.known_face_names))
+        print(type(self.known_face_encodings))
+        np.savetxt('face_code.csv',self.known_face_encodings,delimiter=',')
+        namefile=open('face_name.txt','w')
+        for name in self.known_face_names:
+            namefile.write(name+" \n")
+        namefile.close()
+        print("Encoding images Saved")
 
     def detect_known_faces(self, frame):
         small_frame = cv2.resize(frame, (0, 0), fx=self.frame_resizing, fy=self.frame_resizing)
@@ -48,7 +58,7 @@ class Recognizer:
         face_names = []
         for face_encoding in face_encodings:
 
-            matches = face_recognition.compare_faces(self.known_face_encodings, face_encoding)
+            matches = face_recognition.compare_faces(self.known_face_encodings, face_encoding,0.4)
             name = "Unknown"
 
 

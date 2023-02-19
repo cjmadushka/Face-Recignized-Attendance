@@ -3,8 +3,7 @@ from Recognizer import Recognizer
 
 
 recognizer = Recognizer()
-recognizer.load_encoding_images("images/")
-
+recognizer.load_encoding_images()
 
 cap = cv2.VideoCapture(0)
 
