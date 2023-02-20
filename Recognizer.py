@@ -1,9 +1,11 @@
+from datetime import datetime
 import face_recognition
 import cv2
 import os
 import glob
 import numpy as np
-import json
+import xlsxwriter as xl
+
 
 class Recognizer:
     def __init__(self):
@@ -72,3 +74,16 @@ class Recognizer:
         face_locations = np.array(face_locations)
         face_locations = face_locations / self.frame_resizing
         return face_locations.astype(int), face_names
+    def export_xlsx(self,names,timestamps):
+        book=xl.Workbook("Attendance_"+ datetime.now().strftime("%m_%d_%Y") + ".xlsx")
+        sheet=book.add_worksheet()
+        sheet.write('A1','Student Name')
+        sheet.write('B1','Time Stamp')
+        Rownumber=2
+        listtoken=0
+        for name in names:
+            sheet.write('A'+ str(Rownumber),name)
+            sheet.write('B'+ str(Rownumber),timestamps[listtoken])
+            Rownumber+=1
+            listtoken+=1
+        book.close()
